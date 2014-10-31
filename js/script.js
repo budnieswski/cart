@@ -1,16 +1,18 @@
-(function( $ ){
+var cart = {};
+        cart.default = [];
+;(function( $ ){
   $.fn.cart = function(options) {
 
     var defaults = {
       'btnAdd' : '.cartadd',
       'btnRem' : '.cartrem',
       'btnDel' : '.cartdel',
+      'btnAmountItem' : '.amountItem',
     },
     settings      = $.extend( {}, defaults, options ),
     cartCookie    = null, // Cookie
     element       = null; // Cart "wrap"
-    var cart = {};
-        cart.default = [];
+    
 
     /*
     * Methods
@@ -121,20 +123,22 @@
       * Find an element, if exists amount is incremented
       * Else create a element
       */
-      __amountTest = function (elementToSet, id) {
+      __amountTest = function (elementToSet, id, qtd) {
+        qtd = qtd*1; // Transforma em numero
+
         search = __search(elementToSet, id); // Item ID
 
-        console.log(elementToSet);
-
         // Ja existe o item, apenas aumenta a quantidade
-        // if (search !== false) {
+        if (search !== false && qtd>0) {
 
-        //   amount = elementToSet[search]['amount'];
-        //   amount = (amount)?amount+1:1;
+          elementToSet[search]['amount'] = qtd;
+          __setCookie();
+        }
 
-        //   elementToSet[search]['amount'] = amount;
-
-        // }
+        if (search !== false && qtd<=0) {
+          delete elementToSet[search];
+          __setCookie();
+        }
       }; // end __amountAdd
 
 
@@ -183,8 +187,6 @@
       __checkCookie = function () {
         cartCookie = $.cookie('cart');
 
-        console.log(cartCookie);
-
         if (cartCookie=='' || cartCookie=='undefined' || cartCookie==null) {
           $.cookie('cart', "VAZIO");
           cartCookie = $.cookie('cart');
@@ -197,6 +199,12 @@
           console.log("Cookie Carregado");
         }
       }; // end __checkCookie
+
+
+      __getCart = function () {
+        __checkCookie();
+        return cart;
+      };
 
 
       /*
@@ -218,10 +226,6 @@
             cart.default = [];
       };
 
-      __oi = function(cat) {
-        console.log(cart);
-      };
-
     }
 
 
@@ -232,10 +236,6 @@
     {
       var publicMethods = {
         setAmount: function(category, idItem) {
-          // console.log(category);
-          // console.log(cart);
-          __oi();
-          // console.log( __search(cart[category], idItem) );
         },
         delete: function() {
           __delCookie();
@@ -268,7 +268,8 @@
         __proccessJSON($(this).attr('data-cart'));
       });
 
-      $("input.amountItem").change(function(event) {
+      // Incrementa / Decrementa Item quantidade
+      $(settings['btnAmountItem'], element).change(function(event) {
        /* Act on the event */
        var o = $(this),
        amount = o.val(),
@@ -276,9 +277,13 @@
        category = parent.data('category'),
        idItem = parent.data('id');
 
+       cart = __getCart();
 
-       console.log(cart);
-       __amountTest(cart[eval(category)], idItem);
+       if (amount <= 0) {
+        parent.hide();
+       }
+
+       __amountTest(eval('cart.'+category), idItem, amount);
      });
       
     }
