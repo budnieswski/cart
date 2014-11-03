@@ -132,13 +132,23 @@ var cart = {};
         if (search !== false && qtd>0) {
 
           elementToSet[search]['amount'] = qtd;
-          __setCookie();
         }
 
         if (search !== false && qtd<=0) {
-          delete elementToSet[search];
-          __setCookie();
+
+          if (elementToSet.length <=1) {
+            elementToSet.shift();
+          } else {
+            // Coloca o ultimo elemento no lugar (reindex)
+            elementToSet[search] = elementToSet.pop();
+            
+          }
+          
+
+
         }
+
+        __setCookie();
       }; // end __amountAdd
 
 

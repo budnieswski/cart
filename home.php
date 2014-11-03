@@ -7,6 +7,12 @@
     </li>
 
     <li>
+      Product Name: Borracha <br/>
+      Product Price: R$ 1,50 <br/>
+      <button class="cartadd" data-cart='<?php echo json_encode(array('id'=>57, 'name'=>'Borracha', 'price'=>'1,50')) ?>'>Adicionar</button>
+    </li>
+
+    <li>
       Product Name: Caneta <br/>
       Product Price: R$ 20,30 <br/>
       <button class="cartadd" data-cart='<?php echo json_encode(array('id'=>24, 'name'=>'Caneta', 'price'=>'20,30')) ?>'>Adicionar</button>
