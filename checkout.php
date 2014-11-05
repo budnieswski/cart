@@ -3,6 +3,7 @@
 <?php
 $cart = stripcslashes($_COOKIE['cart']);
 $cart = json_decode($cart);
+$cart = $cart->itens;
 ?>
 
 <table>

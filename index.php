@@ -6,11 +6,14 @@
   <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
   <script src="js/jquery.json.js"></script>
   <script src="js/jquery.cookie.js"></script>
+  <script src="js/accounting.min.js"></script>
   <script src="js/script.js"></script>
 
   <script>
   jQuery(function($){
-   var mycart = $("#mycart").cart();
+   var mycart = $("#mycart").cart({
+    'btnDel': '.removerItem',
+   });
 
    // $("input.amountItem").change(function(event) {
    //   /* Act on the event */
@@ -28,6 +31,8 @@
      /* Act on the event */
      console.log('remove');
    });
+
+   console.log( mycart.getTotalPrice() );
 
 
 

@@ -1,5 +1,10 @@
 var cart = {};
-        cart.default = [];
+cart.checkout = {
+  'priceTotal': 0,
+  'quantItens': 0,
+};
+cart.itens = {};
+cart.itens.default = [];
 ;(function( $ ){
   $.fn.cart = function(options) {
 
@@ -58,40 +63,34 @@ var cart = {};
       __add = function (data, key) {
         if (key!="" && key!='undefined' && key!=null) {
           // nao existe esse "NODO"
-          if (!cart[key]) {
-            cart[key] = []; // Create "NODO"
-            __amountAdd(cart[key], data); // First ITEM
+          if (!cart.itens[key]) {
+            cart.itens[key] = []; // Create "NODO"
+            __amountAdd(cart.itens[key], data); // First ITEM
+            console.log(cart);
           } else {
-            __amountAdd(cart[key], data);
+            __amountAdd(cart.itens[key], data);
           }
         } else {
-          __amountAdd(cart.default, data);
+          __amountAdd(cart.itens.default, data);
         }  
       }; // end __add
 
 
       /*
-      * Decrement amount
-      */
-      __rem = function (data, key) {
-        if (key!="" && key!='undefined' && key!=null) {
-          // nao existe esse "NODO"
-          if (!cart[key]) {
-            cart[key] = []; // Create "NODO"
-            cart[key].push( data ); // First ITEM
-          } else {
-            __amountRem(cart[key], data);
-          }
-        } else {
-          __amountRem(cart.default, data);
-        }  
-      }; // end __rem
-
-
-      /*
       * Delete item
       */
-      __del = function (data, key) {
+      __del = function (element, key) {
+        if (element.length <=1 || search==0) {
+          // Zera ou Remove o primeiro
+          element.shift();
+        } else if (element.length == (search+1) ) {
+          // Remove o ultimo elemento
+          element.pop();
+        } else {
+          // Remove qualquer que nao seja o extremo
+          // Coloca o ultimo elemento no lugar (reindex)
+          element[search] = element.pop();          
+        }
       }; // end __del
 
 
@@ -118,60 +117,27 @@ var cart = {};
       }; // end __amountAdd
 
 
-
       /*
-      * Find an element, if exists amount is incremented
-      * Else create a element
+      * When change
       */
-      __amountTest = function (elementToSet, id, qtd) {
+      __amountChange = function (elementToSet, id, qtd) {
         qtd = qtd*1; // Transforma em numero
 
-        search = __search(elementToSet, id); // Item ID
+        search = __search(elementToSet, id); // Item ID (key)
+        search = search*1;
 
         // Ja existe o item, apenas aumenta a quantidade
         if (search !== false && qtd>0) {
-
           elementToSet[search]['amount'] = qtd;
         }
 
+        // Remove o item
         if (search !== false && qtd<=0) {
-
-          if (elementToSet.length <=1) {
-            elementToSet.shift();
-          } else {
-            // Coloca o ultimo elemento no lugar (reindex)
-            elementToSet[search] = elementToSet.pop();
-            
-          }
-          
-
-
+          __del(elementToSet, search);
         }
 
         __setCookie();
-      }; // end __amountAdd
-
-
-      /*
-      * Find an element, if exists decrement amount
-      * if is 0, remove element
-      */
-      __amountRem = function (elementToSet, obj) {
-        search = __search(elementToSet, obj.id); // Item ID
-
-        // Ja existe o item, apenas aumenta a quantidade
-        if (search !== false) {
-
-          amount = elementToSet[search]['amount'];
-          amount = (amount)?amount+1:1;
-
-          elementToSet[search]['amount'] = amount;
-
-        } else {
-          // Item ainda nao existente
-          elementToSet.push( obj );
-        }
-      }; // end __amountRem
+      }; // end __amountChange
 
 
       /*
@@ -233,7 +199,12 @@ var cart = {};
         $.removeCookie('cart');
         cartCookie    = null; // Cookie
         var cart = {};
-            cart.default = [];
+        cart.checkout = {
+          'priceTotal': 0,
+          'quantItens': 0,
+        };
+        cart.itens = {};
+        cart.itens.default = [];
       };
 
     }
@@ -246,6 +217,10 @@ var cart = {};
     {
       var publicMethods = {
         setAmount: function(category, idItem) {
+        },
+        getTotalPrice: function() {
+          cart = __getCart();
+          return cart.checkout.priceTotal;
         },
         delete: function() {
           __delCookie();
@@ -268,14 +243,20 @@ var cart = {};
         // console.log(cart);
       });
 
-      // Clicked remove (amount) to cart
-      $(settings['btnRem'], element).bind('click', function(){
-        __proccessJSON($(this).attr('data-cart'));
-      });
-
       // Clicked del (item) to cart
       $(settings['btnDel'], element).bind('click', function(){
-        __proccessJSON($(this).attr('data-cart'));
+        /* Act on the event */
+        var o = $(this),
+        amount = 0,
+        parent = o.parent().parent(),
+        category = parent.data('category'),
+        idItem = parent.data('id');
+
+        cart = __getCart();
+
+        parent.hide();
+
+        __amountChange(eval('cart.itens.'+category), idItem, amount);
       });
 
       // Incrementa / Decrementa Item quantidade
@@ -293,7 +274,7 @@ var cart = {};
         parent.hide();
        }
 
-       __amountTest(eval('cart.'+category), idItem, amount);
+       __amountChange(eval('cart.itens.'+category), idItem, amount);
      });
       
     }
