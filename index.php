@@ -7,44 +7,43 @@
   <script src="js/jquery.json.js"></script>
   <script src="js/jquery.cookie.js"></script>
   <script src="js/accounting.min.js"></script>
-  <script src="js/script.js"></script>
+  <script src="js/cart.js"></script>
 
   <script>
   jQuery(function($){
-   var mycart = $("#mycart").cart({
-    'btnDel': '.removerItem',
-   });
 
-   // $("input.amountItem").change(function(event) {
-   //   /* Act on the event */
-   //   var o = $(this),
-   //   amount = o.val(),
-   //   parent = o.parent().parent(),
-   //   category = parent.data('category'),
-   //   idItem = parent.data('id');
+    var gbCart = $("#mycart").gbcart();
+  //  var mycart = $("#mycart").cart({
+  //   'btnDel': '.removerItem',
+  //  });
 
 
-   //   mycart.setAmount(category, idItem);
-   // });
+  //  $("input.amountItem").change(function(event) {
+  //    $("#showtotal").html(mycart.getTotalPrice());
+  //  });
 
-   $("button.removerItem").click(function(event) {
-     /* Act on the event */
-     console.log('remove');
-   });
-
-   console.log( mycart.getTotalPrice() );
+  //  $("button.removerItem").click(function(event) {
+  //    console.log('remove');
+  //  });
 
 
 
-
+  //  $("button.precototal").click(function(event) {
+  //    console.log( mycart.getTotalPrice() );
+  //  });
 
    $('.show').click(function(event) {
-    mycart.show();
+    gbCart.getCart();
    });
 
-   $('.delete').click(function(event) {
-    mycart.delete();
-   });
+  //  $('.delete').click(function(event) {
+  //   mycart.delete();
+  //  });
+
+
+
+
+
 
   $('.showcookie').click(function(event) {
     console.log($.cookie('cart'));
@@ -64,6 +63,7 @@
     <button class="show">Show</button>
     <button class="delete">Delete Cookie</button>
     <button class="showcookie">Show Cookie</button>
+    <button class="precototal">Preco total</button>
     <button class="link" data-link="checkout">CheckOut</button>
   </p>
 

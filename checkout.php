@@ -31,6 +31,10 @@ $cart = $cart->itens;
   }
   ?>
 
+  <tr>
+    <td>Total: <span id="showtotal"></span></td>
+  </tr>
+
   
   
 </table>

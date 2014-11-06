@@ -109,10 +109,22 @@ cart.itens.default = [];
 
           elementToSet[search]['amount'] = amount;
 
+          //
+          var total =  cart.checkout.priceTotal;
+          total = accounting.unformat(total) + accounting.unformat(obj['price']);
+          cart.checkout.priceTotal = accounting.unformat(total);
+          cart.checkout.quantItens += 1; 
+
         } else {
           // Item ainda nao existente
           obj['amount'] = 1;
           elementToSet.push( obj );
+
+          //
+          var total =  cart.checkout.priceTotal;
+          total = accounting.unformat(total) + accounting.unformat(obj['price']);
+          cart.checkout.priceTotal = accounting.unformat(total);
+          cart.checkout.quantItens += 1; 
         }
       }; // end __amountAdd
 
@@ -129,6 +141,11 @@ cart.itens.default = [];
         // Ja existe o item, apenas aumenta a quantidade
         if (search !== false && qtd>0) {
           elementToSet[search]['amount'] = qtd;
+          
+          var total =  cart.checkout.priceTotal;
+          total = accounting.unformat(total) + (accounting.unformat(elementToSet[search]['price'])*qtd);
+          cart.checkout.priceTotal = accounting.unformat(total);
+          cart.checkout.quantItens += qtd; 
         }
 
         // Remove o item
@@ -177,12 +194,6 @@ cart.itens.default = [];
       }; // end __checkCookie
 
 
-      __getCart = function () {
-        __checkCookie();
-        return cart;
-      };
-
-
       /*
       * Apos cada processo de adicao/remocao de item
       * O Cookie e atualizado
@@ -206,6 +217,13 @@ cart.itens.default = [];
         cart.itens = {};
         cart.itens.default = [];
       };
+
+      /**/
+      __getCart = function () {
+        __checkCookie();
+        return cart;
+      };
+
 
     }
 
