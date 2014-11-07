@@ -37,13 +37,10 @@
           };
 
           $.cookie('cart', JSON.stringify(cart));
-          cartCookie = $.cookie('cart');
-
-          console.log('Cookie Criado');
+          // cartCookie = $.cookie('cart');
         } else {
           // Ja existe entao carrega do cookie para o objeto
           cart = JSON.parse(cartCookie);
-          console.log('Cookie Carregado');
         }
 
         console.log('Run one time # __init');
@@ -77,6 +74,37 @@
         return false;
       }; // end __search
 
+
+      /**/
+      __identify = function(elementToSet, obj, amount) {
+
+        amount = amount*1;
+        var searchID = null;
+
+        if (typeof(obj)=='object') {
+          searchID = obj.id; // Receivied by JSON (item ID)
+        } else {
+          searchID = obj; // When event is change receive just item ID
+        }
+
+        search = __search(elementToSet, searchID); // Search Item into Cart Object
+
+        // Ja existe o item
+        if (search !== false) {
+
+          newAmount = elementToSet[search]['amount'];
+          newAmount = (newAmount)?newAmount+1:1;
+
+          elementToSet[search]['amount'] = newAmount;
+
+        } else {
+          // Item ainda nao existente
+          obj['amount'] = amount; // or amount
+          elementToSet.push( obj );
+        }
+
+      }; // end __identify
+
     }
 
 
@@ -85,7 +113,46 @@
     **************************************************************************
     */
     {
+      /*
+      * CORE
+      * Responsavel por identificar a acao e executala (incremento, decremento)
+      * Todas as acoes devem passar por aqui
+      */
+      _core = function(json, amount) {
+        
+        if (!amount) {
+          amount = 1;
+        }
 
+        var json = JSON.parse(json),
+            key = Object.keys(json)[0], // Maybe a category name
+            data = json[key]; // Object (category->json)
+
+        // IS "NODO" (category)
+        if (key!="" && key!='undefined' && key!=null && typeof(data)=='object') {
+          // Nao existe esse "NODO"
+          if (!cart.itens[key]) {
+            cart.itens[key] = []; // Create "NODO"
+            __identify(cart.itens[key], data, amount); // First ITEM
+          } else {
+            __identify(cart.itens[key], data, amount);
+          }
+        } else {
+          // UNIQUE (without 'category') - Commom Item
+          __identify(cart.itens.default, json, amount);
+        }
+
+        $.cookie('cart', JSON.stringify(cart));
+      }; // end _core
+
+
+      /*
+      * Reseta todo o sistema
+      */
+      _reset = function() {
+        $.removeCookie('cart');
+        __init();
+      };
     }
 
 
@@ -97,6 +164,9 @@
       var publicMethods = {
         getCart: function() {
           console.log(cart);
+        },
+        reset: function() {
+          _reset();
         }
       };
     }
@@ -107,7 +177,10 @@
     **************************************************************************
     */
     {
-      
+      // Clicked add to cart ONE ITEM
+      $(settings['btnAdd'], element).bind('click', function(){
+        _core($(this).attr('data-cart'));
+      });
     }
 
 

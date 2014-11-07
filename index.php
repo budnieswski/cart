@@ -36,9 +36,9 @@
     gbCart.getCart();
    });
 
-  //  $('.delete').click(function(event) {
-  //   mycart.delete();
-  //  });
+   $('.delete').click(function(event) {
+    gbCart.reset();
+   });
 
 
 
@@ -60,8 +60,8 @@
 
   <p>
     <button class="link" data-link="home">home</button>
-    <button class="show">Show</button>
-    <button class="delete">Delete Cookie</button>
+    <button class="show">Show Cart OBJ</button>
+    <button class="delete">Reset</button>
     <button class="showcookie">Show Cookie</button>
     <button class="precototal">Preco total</button>
     <button class="link" data-link="checkout">CheckOut</button>
