@@ -5,7 +5,7 @@
       'btnAdd' : '.cartadd',
       'btnRem' : '.cartrem',
       'btnDel' : '.cartdel',
-      'btnAmountItem' : '.amountItem',
+      'btnChg' : '.cartchg',
     },
     settings      = $.extend( {}, defaultsAtts, options ),
     element       = null, // Cart "wrap"
@@ -49,43 +49,10 @@
 
       /**/
       __add = function(elementToSet, obj, amount) {
-
-      }; // end __add
-
-
-      /**/
-      __del = function(elementToSet, obj, amount) {
-
-      }; // end __del
-      
-
-      /*
-      * Search Item, passing needle and object to loop
-      * return Item ID if found
-      * return false if not found
-      */
-      __search = function (obj, idSearch) {
-        for (key in obj) {
-          item = obj[key];
-          if(item.id == idSearch) {
-            return key;
-          }
-        }
-        return false;
-      }; // end __search
-
-
-      /**/
-      __identify = function(elementToSet, obj, amount) {
-
         amount = amount*1;
         var searchID = null;
 
-        if (typeof(obj)=='object') {
-          searchID = obj.id; // Receivied by JSON (item ID)
-        } else {
-          searchID = obj; // When event is change receive just item ID
-        }
+        searchID = obj.id;
 
         search = __search(elementToSet, searchID); // Search Item into Cart Object
 
@@ -93,17 +60,87 @@
         if (search !== false) {
 
           newAmount = elementToSet[search]['amount'];
-          newAmount = (newAmount)?newAmount+1:1;
+          newAmount = (newAmount)?newAmount+amount:amount;
 
           elementToSet[search]['amount'] = newAmount;
 
         } else {
           // Item ainda nao existente
-          obj['amount'] = amount; // or amount
+          obj['amount'] = amount; // Default is 1
           elementToSet.push( obj );
         }
+      }; // end __add
 
-      }; // end __identify
+
+      /**/
+      __del = function(element, key) {
+        if (element.length <=1 ) {
+          // Zera E Remove o primeiro
+          element.shift();
+
+          console.log(Object.keys(element));
+          console.log(element);
+        } else if (element.length <=1 && key==0) {
+          // Remove o primeiro
+          element.shift();
+        } else if (element.length == (key+1) ) {
+          // Remove o ultimo elemento
+          element.pop();
+        } else {
+          // Remove qualquer que nao seja o extremo
+          // Coloca o ultimo elemento no lugar (reindex)
+          element[key] = element.pop();          
+        }
+      }; // end __del
+
+
+      /**/
+      __change = function (info, amount) {
+        amount = amount*1;
+
+        search = __search(cart.itens[info.category], info.id); // Search Item into Cart Object
+
+        // Ja existe o item, apenas aumenta a quantidade
+        if (search !== false && amount>0) {
+          console.log('existe, att');
+          cart.itens[info.category][search]['amount'] = amount;
+        }
+
+        // Remove o item
+        if (search !== false && amount<=0) {
+          __del(cart.itens[info.category], search);
+        }
+
+      }; // end __change
+
+
+      /*
+      * Remove o Item inteiro do cart
+      */
+      __remove = function (info) {        
+        search = __search(cart.itens[info.category], info.id); // Search Item into Cart Object
+
+        if (search !== false) {
+          __del(cart.itens[info.category], search);
+        }
+
+      }; // end __change
+
+
+      /*
+      * Search Item, passing needle and object to loop
+      * return Item ID if found (number)
+      * return false if not found
+      */
+      __search = function (obj, idSearch) {
+        for (key in obj) {
+          item = obj[key];
+          if(item.id == idSearch) {
+            return key*1; // to number
+          }
+        }
+        return false;
+      }; // end __search
 
     }
 
@@ -118,28 +155,38 @@
       * Responsavel por identificar a acao e executala (incremento, decremento)
       * Todas as acoes devem passar por aqui
       */
-      _core = function(json, amount) {
-        
-        if (!amount) {
-          amount = 1;
-        }
+      _core = function(type, args, amount) {
 
-        var json = JSON.parse(json),
+        if (type=='change') {
+
+          __change(args, amount);
+
+        } else if (type=='add') {
+          var json = JSON.parse(args),
             key = Object.keys(json)[0], // Maybe a category name
             data = json[key]; // Object (category->json)
 
-        // IS "NODO" (category)
-        if (key!="" && key!='undefined' && key!=null && typeof(data)=='object') {
-          // Nao existe esse "NODO"
-          if (!cart.itens[key]) {
-            cart.itens[key] = []; // Create "NODO"
-            __identify(cart.itens[key], data, amount); // First ITEM
-          } else {
-            __identify(cart.itens[key], data, amount);
-          }
-        } else {
-          // UNIQUE (without 'category') - Commom Item
-          __identify(cart.itens.default, json, amount);
+             if (!amount) {
+              amount = 1;
+            }        
+
+            // IS "NODO" (category)
+            if (key!="" && key!='undefined' && key!=null && (typeof(data)=='object' || type=='change') ) {
+              // Nao existe esse "NODO"
+              if (!cart.itens[key]) {
+                cart.itens[key] = []; // Create "NODO"
+                __add(cart.itens[key], data, amount); // First ITEM
+              } else {
+                __add(cart.itens[key], data, amount);
+              }
+            } else {
+              // UNIQUE (without 'category') - Commom Item
+              __add(cart.itens.default, json, amount);
+            }
+
+        } else if (type=='remove') {
+          //
+          __remove(args);
         }
 
         $.cookie('cart', JSON.stringify(cart));
@@ -177,9 +224,48 @@
     **************************************************************************
     */
     {
-      // Clicked add to cart ONE ITEM
+      // Clicked add to cart ONE ITEM (amount)
       $(settings['btnAdd'], element).bind('click', function(){
-        _core($(this).attr('data-cart'));
+        _core('add', $(this).attr('data-cart'));
+      });
+
+      // Clicked Remove (Remove Item)
+      $(settings['btnRem'], element).bind('click', function(){
+        var o = $(this),
+        parent = o.parent().parent(),
+        category = parent.data('category'),
+        idItem = parent.data('id');
+
+        var args = {
+          'category': category,
+          'id': idItem,
+        };
+
+        parent.hide();
+
+        _core('remove', args, 0);
+      });
+
+      // When Change
+      $(settings['btnChg'], element).bind('change', function(){
+        var o = $(this),
+        amount = o.val(),
+        parent = o.parent().parent(),
+        category = parent.data('category'),
+        idItem = parent.data('id');
+
+        var args = {
+          'category': category,
+          'id': idItem,
+        };
+
+        if (amount <= 0) {
+         alert('nao e possivel zerar');
+         o.val(1);
+         return false;
+        }
+
+        _core('change', args, amount);
       });
     }
 

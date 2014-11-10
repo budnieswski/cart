@@ -6,7 +6,7 @@ $cart = json_decode($cart);
 $cart = $cart->itens;
 ?>
 
-<table>
+<table id="mycart">
   <tr>
     <th>ID</th>
     <th>Nome</th>
@@ -23,8 +23,8 @@ $cart = $cart->itens;
         echo "  <td>{$item->id}</td>";
         echo "  <td>{$item->name}</td>";
         echo "  <td>{$item->price}</td>";
-        echo "  <td><input class=\"amountItem\" type=\"number\" value=\"{$item->amount}\"/></td>";
-        echo "  <td><button class=\"removerItem\">Remover</button></td>";
+        echo "  <td><input class=\"cartchg\" type=\"number\" value=\"{$item->amount}\"/></td>";
+        echo "  <td><button class=\"cartrem\">Remover</button></td>";
         echo "</tr>\n";
       }
     }
