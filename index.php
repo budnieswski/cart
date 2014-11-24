@@ -3,11 +3,12 @@
 <head> 
   <meta charset="UTF-8">
   <title>Document</title>
+  <link rel="stylesheet" href="css/jquery-impromptu.css">
   <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
   <script src="js/jquery.json.js"></script>
   <script src="js/jquery.cookie.js"></script>
-  <script src="js/accounting.min.js"></script>
-  <script src="js/cart.js"></script>
+  <script src="js/jquery-impromptu.js"></script>
+  <script src="js/jquery.gbcart.js"></script>
 
   <script>
   jQuery(function($){
