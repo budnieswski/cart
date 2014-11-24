@@ -2,10 +2,21 @@
   $.fn.gbcart = function(options) {
 
     var defaultsAtts = {
-      'btnAdd' : '.cartadd',
-      'btnRem' : '.cartrem',
-      'btnDel' : '.cartdel',
-      'btnChg' : '.cartchg',
+
+      'buttons' : {
+        'add' : '.cartadd',
+        'rem' : '.cartrem',
+        'del' : '.cartdel',
+        'chg' : '.cartchg'
+      },
+
+      'showMessages' : true,
+      'messages' : {
+        'add' : 'Produto adicionado ao carrinho !',
+        'rem' : 'Você tem certeza que deseja remover este item do seu carrinho ?',
+        'del' : '',
+        'chg' : ''
+      },
     },
     settings      = $.extend( {}, defaultsAtts, options ),
     element       = null, // Cart "wrap"
@@ -234,14 +245,14 @@
     */
     {
       // Clicked add to cart ONE ITEM (amount)
-      $(settings['btnAdd'], element).bind('click', function(){
+      $(settings['buttons']['add'], element).bind('click', function(){
         _core('add', $(this).attr('data-cart'));
-        $.prompt("Produto adicionado ao carrinho !");
+        $.prompt( settings['messages']['add'] );
         return false;
       });
 
       // Clicked Remove (Remove Item)
-      $(settings['btnRem'], element).bind('click', function(){
+      $(settings['buttons']['rem'], element).bind('click', function(){
         var o = $(this),
         parent = o.parent().parent(),
         category = parent.data('category'),
@@ -267,7 +278,7 @@
       });
 
       // When Change
-      $(settings['btnChg'], element).bind('change', function(){
+      $(settings['buttons']['chg'], element).bind('change', function(){
         var o = $(this),
         amount = o.val(),
         parent = o.parent().parent(),
