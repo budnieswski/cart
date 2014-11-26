@@ -10,6 +10,12 @@
         'chg' : '.cartchg'
       },
 
+      'callbacks' : {
+        add : function () {},
+        chg : function () {},
+        rem : function () {}
+      },
+
       'showMessages' : true,
       'messages' : {
         'add' : 'Produto adicionado ao carrinho !',
